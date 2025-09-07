@@ -1,152 +1,241 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>ChainSMP — Lifesteal Info</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <title>ChainSMP — Infuse & Lifesteal (Info)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: "Poppins", sans-serif;
-      color: white;
-      text-align: center;
-      background: black;
-      overflow-x: hidden;
+    /* Basic resets */
+    * { box-sizing: border-box; }
+    html,body { height:100%; margin:0; font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color:#eee; background:#000; }
+
+    /* Background video */
+    .video-bg { position:fixed; inset:0; z-index:-3; overflow:hidden; }
+    .video-bg video { width:100%; height:100%; object-fit:cover; display:block; }
+
+    /* Dark overlay so text is readable */
+    .overlay { position:fixed; inset:0; background:linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.65)); z-index:-2; }
+
+    /* Page container */
+    .wrap { position:relative; min-height:100vh; display:flex; flex-direction:column; justify-content:flex-start; gap:30px; }
+
+    /* MOTD bar */
+    .motd {
+      background: linear-gradient(90deg,#ff0040,#ff7b00);
+      color:#060606;
+      padding:8px 12px;
+      font-weight:800;
+      letter-spacing:0.6px;
+      overflow:hidden;
+      white-space:nowrap;
+    }
+    .motd .inner { display:inline-block; padding-left:100%; animation:marquee 18s linear infinite; }
+    @keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-100%);} }
+
+    /* Header / hero */
+    header { padding:48px 22px 12px; text-align:center; }
+    header h1 { margin:0; font-size:42px; line-height:1; letter-spacing:1px; text-shadow:0 0 30px rgba(255,0,64,0.9); }
+    header p.lead { max-width:980px; margin:12px auto 0; color:#dcdcdc; font-size:16.5px; line-height:1.7; }
+
+    /* CTA buttons */
+    .cta-row { display:flex; gap:12px; justify-content:center; margin-top:18px; flex-wrap:wrap; }
+    .btn {
+      display:inline-block; text-decoration:none; color:#fff; font-weight:700;
+      padding:12px 22px; border-radius:999px; box-shadow:0 8px 30px rgba(0,0,0,0.45);
+      transition:transform .18s ease, box-shadow .18s ease;
+      background:linear-gradient(90deg,#ff0040,#ff7b00);
+    }
+    .btn.secondary { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.06); color:#fff; }
+    .btn:hover { transform:translateY(-6px); box-shadow:0 18px 40px rgba(255,123,0,0.18); }
+
+    /* Main article area */
+    main { width:100%; max-width:1100px; margin:0 auto; padding:18px; display:block; }
+    .card {
+      background: rgba(10,10,10,0.65);
+      border-radius:14px;
+      padding:26px;
+      margin-bottom:22px;
+      border:1px solid rgba(255,255,255,0.045);
+      box-shadow: 0 6px 30px rgba(0,0,0,0.6);
     }
 
-    /* Background Video */
-    .video-bg {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-      z-index: -2;
-    }
-    .video-bg video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    /* big titles inside content */
+    .card h2 { margin:6px 0 14px; color:#ffcd9a; text-shadow:0 0 8px rgba(255,123,0,0.12); font-size:22px; }
+    .card p { color:#e7e7e7; font-size:15.5px; line-height:1.85; text-align:justify; margin:10px 0; }
+
+    /* emphasis block */
+    .highlight {
+      background: linear-gradient(90deg,rgba(255,0,64,0.08), rgba(255,123,0,0.06));
+      padding:12px 14px; border-radius:10px; margin:14px 0; border:1px solid rgba(255,123,0,0.08);
+      color:#fff; font-weight:600;
     }
 
-    /* Overlay */
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.65);
-      z-index: -1;
-    }
+    /* two-column features */
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; margin-top:6px; }
+    @media (max-width:860px){ .grid{ grid-template-columns:1fr; } header h1{ font-size:32px; } }
 
-    header {
-      padding: 80px 20px 40px;
-    }
-    header h1 {
-      font-size: 3rem;
-      font-weight: 900;
-      margin-bottom: 10px;
-      text-shadow: 0 0 20px rgba(255,0,64,0.9);
-    }
-    header p {
-      font-size: 1.2rem;
-      max-width: 700px;
-      margin: auto;
-      color: #ddd;
-    }
+    /* sponsor block */
+    .sponsor { display:flex; gap:16px; align-items:center; justify-content:space-between; padding:18px; border-radius:12px; background:linear-gradient(90deg,#ff0040,#ff7b00); color:#060606; font-weight:800; text-decoration:none; }
+    .sponsor .left { font-size:18px; }
+    .sponsor .right a { color:#060606; text-decoration:none; font-weight:900; padding:10px 16px; background:#fff; border-radius:999px; }
 
-    section {
-      margin: 50px auto;
-      max-width: 900px;
-      padding: 20px;
+    /* sticky join-footer */
+    .sticky {
+      position:fixed; left:12px; right:12px; bottom:14px; z-index:60; display:flex; gap:12px; justify-content:center; align-items:center;
+      background:rgba(0,0,0,0.55); padding:10px 12px; border-radius:999px; border:1px solid rgba(255,255,255,0.05);
+      box-shadow:0 12px 40px rgba(0,0,0,0.6);
     }
-    section h2 {
-      font-size: 2rem;
-      margin-bottom: 15px;
-      text-shadow: 0 0 10px rgba(255,123,0,0.9);
-    }
-    section p {
-      font-size: 1rem;
-      line-height: 1.7;
-      color: #ccc;
-    }
+    .sticky a { text-decoration:none; color:#fff; padding:10px 18px; border-radius:999px; font-weight:800; background:linear-gradient(90deg,#ff0040,#ff7b00); }
 
-    .sponsor {
-      background: linear-gradient(135deg, #ff0040, #ff7b00);
-      padding: 30px;
-      border-radius: 15px;
-      margin: 60px auto;
-      max-width: 700px;
-      box-shadow: 0 0 30px rgba(255,123,0,1);
-    }
-    .sponsor h2 {
-      margin-bottom: 15px;
-      font-size: 1.8rem;
-    }
-    .sponsor a {
-      background: #111;
-      padding: 12px 25px;
-      border-radius: 40px;
-      color: white;
-      text-decoration: none;
-      font-size: 1.1rem;
-      font-weight: bold;
-      transition: 0.3s;
-    }
-    .sponsor a:hover {
-      background: white;
-      color: black;
-    }
+    footer { color:#bfbfbf; text-align:center; padding:28px 12px 90px; font-size:13px; }
 
-    footer {
-      text-align: center;
-      padding: 20px;
-      font-size: 0.9rem;
-      background: rgba(0,0,0,0.8);
-      border-top: 1px solid rgba(255,255,255,0.1);
-    }
+    /* subtle entrance animations */
+    .fade-in { opacity:0; transform:translateY(8px); animation:in .7s forwards; }
+    .delay-1 { animation-delay:0.06s; } .delay-2{ animation-delay:0.12s; } .delay-3 { animation-delay:0.18s; } .delay-4{ animation-delay:0.24s; }
+    @keyframes in { to { opacity:1; transform:none; } }
   </style>
 </head>
 <body>
+  <!-- video background -->
   <div class="video-bg">
     <video autoplay muted loop playsinline>
       <source src="Loop Background Live Wallpaper Chilling Cat No Sound.mp4" type="video/mp4">
+      <!-- fallback: -->
     </video>
   </div>
   <div class="overlay"></div>
 
-  <header>
-    <h1>❤️ Welcome to ChainSMP Lifesteal ❤️</h1>
-    <p>The ultimate Lifesteal SMP — gain hearts by killing others, lose hearts on death. Can you survive?</p>
-  </header>
+  <div class="wrap">
+    <!-- marquee motd -->
+    <div class="motd fade-in">
+      <span class="inner">⚡ ChainSMP — Infuse + Lifesteal • Pure Chaos PvP • No Claims • No Shops • Events • Tournaments • Join now! ⚡</span>
+    </div>
 
-  <section>
-    <h2>🌍 Server Info</h2>
-    <p><strong>IP:</strong> ChainSMP.sereinhost.com<br>
-    <strong>Version:</strong> 1.20+<br>
-    <strong>Mode:</strong> Lifesteal SMP (Survival with a twist)</p>
-  </section>
+    <!-- header hero -->
+    <header>
+      <h1 class="fade-in delay-1">CHAIN.SMP — Infuse & Lifesteal</h1>
+      <p class="lead fade-in delay-2">
+        ChainSMP is a relentless, heart-pounding Minecraft experience built for players who want their decisions to matter and their victories to hurt. This server blends two brutal mechanics — <strong>Lifesteal</strong> and <strong>Infuse</strong> — to create an ecosystem where power, reputation, and survival are claimed through combat and cunning. If you want safety, look elsewhere. If you want legend-making PvP, you've arrived.
+      </p>
 
-  <section>
-    <h2>⚡ Features</h2>
-    <p>✔️ Lifesteal Mechanics (steal hearts from enemies)<br>
-       ✔️ Custom Economy & Shops<br>
-       ✔️ Land Claims & Protection<br>
-       ✔️ Active Community & Events<br>
-       ✔️ Friendly Staff & Anti-Griefing</p>
-  </section>
+      <div class="cta-row fade-in delay-3">
+        <a class="btn" href="https://discord.gg/QTb963Jt" target="_blank">⚔️ Join ChainSMP Discord</a>
+        <a class="btn secondary" href="#read-more">📘 Read Full Server Manifest</a>
+      </div>
+    </header>
 
-  <div class="sponsor">
-    <h2>💎 Sponsored by SereinHost</h2>
-    <a href="https://discord.gg/sereinhost" target="_blank">Join SereinHost</a>
+    <main>
+      <!-- long descriptive card -->
+      <article class="card fade-in delay-1" id="read-more">
+        <h2>What is ChainSMP? — The Vision</h2>
+
+        <p>
+          ChainSMP was forged to bring back the raw thrill of Minecraft PvP. It is not a cozy place to farm resources safely — it is a proving ground.
+          Here, your life is measurable, transferable, and consequential. The server’s design removes soft barriers like land claims and protective plugins, intentionally exposing players to a world where every encounter can change your standing permanently.
+        </p>
+
+        <p>
+          The core idea is elegantly cruel: winning matters. When you kill another player on ChainSMP, you may gain what they lost — not just loot, but vitality. Lifesteal mechanics allow successful combatants to siphon hearts from their victims; the scoreboard is written in blood and courage. This changes the psychological weight of every fight. You don’t just fight for items. You fight so you can stand taller in the next skirmish.
+        </p>
+
+        <p>
+          Layered on top of lifesteal is the Infuse system — a progression mechanic that rewards dedication, strategy, and skilled play. Infusions are earned through effort and combat, and they grant unique powers or stat boosts that alter the way you approach the game. Infuse wisely: certain infusions might make you a terror in duels, while others favor mobility or stealth. The combination of lifesteal and infusion creates moments of drama where a single encounter turns a weak survivor into the server’s apex predator.
+        </p>
+
+        <div class="highlight">This is a world where only your actions define you — not protection plugins, not shops, not payouts. Build, betray, form clans, then break them. Everything you create is part of the battlefield and can be taken away.</div>
+      </article>
+
+      <!-- gameplay deep dive -->
+      <section class="card fade-in delay-2">
+        <h2>Gameplay — How chain reacts to players</h2>
+
+        <p>
+          ChainSMP’s gameplay loop is intentionally unforgiving. Without land claims or protections, bases are vulnerable — keeping a hidden base, rotating loot, and scouting your surroundings are essential survival strategies.
+          The absence of economy shops means there isn’t a second, safe progression track; instead, progression happens on the battlefield. Players who master combat and strategy will amass resources and hearts faster than those relying on passive farming.
+        </p>
+
+        <p>
+          The Infuse system turns each player into a customizable force. Infusions can be combined to enhance your combat style: become a damage-dealing berserker, a fleet-footed skirmisher, or a ghost that strikes from shadows. Infusions often need rare ingredients or risks to obtain — making them trophies worth contesting and protecting.
+        </p>
+
+        <div class="grid" style="margin-top:18px;">
+          <div>
+            <h3 style="color:#ffb18a;margin:6px 0;">Risk & Reward</h3>
+            <p>Every expedition into enemy territory carries potential reward and huge risk. Fight for territory and influence, but expect retaliation. The higher your rank and power, the bigger the target on your back.</p>
+          </div>
+          <div>
+            <h3 style="color:#ffb18a;margin:6px 0;">Alliances & Betrayal</h3>
+            <p>Clans and alliances form naturally — but beware. Partnerships can collapse at the first sign of greed. Trust is a currency here, and spending it unwisely can cost you everything.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- meta, community, events -->
+      <section class="card fade-in delay-3">
+        <h2>Community, Events & Competitive Play</h2>
+
+        <p>
+          The ChainSMP community is competitive, vocal, and creative. Players organize wars, clan trials, and high-stakes challenges. Admin-hosted events — such as double heart weekends, infusion hunts, and server-wide wars — ensure the meta stays exciting and unpredictable.
+        </p>
+
+        <p>
+          For players who enjoy measured rivalry, we run regular tournaments with rewards designed to shift the server’s balance of power. For chaos-seekers, spontaneous raids and ambushes are the norm. Either way, you’ll find like-minded players who prefer skill and cunning over passive advantages.
+        </p>
+
+        <p>
+          New players should prepare: read guides in Discord, ask veteran players for tips, and take every fight seriously. Experience matters — and ChainSMP rewards those who adapt and evolve.
+        </p>
+      </section>
+
+      <!-- tactical tips -->
+      <section class="card fade-in delay-4">
+        <h2>Tactical Tips — Survive longer, fight smarter</h2>
+
+        <p>
+          1) Move unpredictably. Static bases are easy targets. Use decoy chests, traps, and escape tunnels.<br><br>
+          2) Value mobility. Infusions and enchantments that increase movement or teleportation open up both offensive and defensive options.<br><br>
+          3) Manage hearts — every heart you lose makes you weaker; every heart you gain makes you more dangerous. Prioritize precision in fights and never throw away lives needlessly.<br><br>
+          4) Scout thoroughly. Use small probes to test defenses before committing heavy forces to a raid.<br><br>
+          5) Build for denial, not permanence. The server design assumes your constructions will be contested — build to slow, confuse, or channel attackers rather than rely on permanence.
+        </p>
+      </section>
+
+      <!-- sponsor CTA -->
+      <div class="card" style="text-align:left;">
+        <h2>Server Info & Join</h2>
+        <p><strong>IP:</strong> ChainSMP.sereinhost.com</p>
+        <p><strong>Version:</strong> 1.20+</p>
+        <p><strong>Mode:</strong> Infuse + Lifesteal — No claims • No protections • No shops</p>
+        <div style="margin-top:12px;">
+          <a class="btn" href="https://discord.gg/QTb963Jt" target="_blank" style="margin-right:10px;">Join ChainSMP Discord</a>
+          <a class="btn secondary" href="https://discord.gg/sereinhost" target="_blank">Sponsor: SereinHost</a>
+        </div>
+      </div>
+
+      <a class="sponsor fade-in delay-1" href="https://discord.gg/sereinhost" target="_blank" style="display:block; text-decoration:none; margin-top:14px;">
+        <div class="left">💎 Sponsored by SereinHost</div>
+        <div class="right"><a href="https://discord.gg/sereinhost" style="text-decoration:none;">Join Sponsor</a></div>
+      </a>
+    </main>
+
+    <!-- sticky join bar -->
+    <div class="sticky">
+      <a href="https://discord.gg/QTb963Jt" target="_blank">Join ChainSMP</a>
+      <a href="https://discord.gg/sereinhost" target="_blank" style="background:linear-gradient(90deg,#fff,#fff); color:#111;">Sponsor</a>
+    </div>
+
+    <footer>
+      © 2025 ChainSMP • Infuse + Lifesteal — built by the community. Credit: Alyxz
+    </footer>
   </div>
 
-  <footer>
-    <p>© 2025 ChainSMP Lifesteal | credit: alyxz</p>
-  </footer>
+  <script>
+    // tiny enhancement: reveal fade-in elements shortly after load
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.fade-in').forEach((el, i) => {
+        el.style.animationDelay = (i * 0.06) + 's';
+      });
+    });
+  </script>
 </body>
 </html>
